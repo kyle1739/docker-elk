@@ -1,0 +1,11 @@
+server.name: "kibana"
+server.host: "0.0.0.0"
+elasticsearch.hosts: [http://10.88.0.60:9200, http://10.88.0.51:9200, http://10.88.0.42:9200]
+xpack.security.enabled: true
+elasticsearch.username: "elastic"
+elasticsearch.password: "aa123456"
+monitoring.enabled: false
+xpack.encryptedSavedObjects.encryptionKey: encryptedSavedObjects12345678909876543210
+xpack.security.encryptionKey: encryptionKeysecurity12345678909876543210
+xpack.reporting.encryptionKey: encryptionKeyreporting12345678909876543210
+xpack.reporting.capture.browser.chromium.disableSandbox: true

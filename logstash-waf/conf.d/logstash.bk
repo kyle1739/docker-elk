@@ -1,0 +1,63 @@
+#input {
+#  kafka { 
+#    bootstrap_servers => "35.221.148.141:9092"
+#    consumer_threads => 3
+#    decorate_events => false
+#    topics => ["log-im"]
+#    group_id => "log-im"
+#  }
+#}
+#
+#filter {
+#
+#   json { source => "message"
+#          }
+#   mutate { remove_field => ["@version","agent"]
+#          }
+#   if [fields][logsource] == "nginx_access" {
+#
+#       grok {
+#            match => { "message" => "%{IPV4:clientip} - - \[%{HTTPDATE:timestamp}\] \"(?:%{WORD:method} %{NOTSPACE:request}(?: HTTP/%{NUMBER:httpversion})?|%{DATA:rawrequest})\" %{NUMBER:status} %{QS:agent} %{QS:forwarder} \"(%{WORD:upstream_cache_status}|-)\""}	  
+#		}
+#       mutate { remove_field => ["message", "timestamp"]
+#		} 
+#       geoip {
+#	    source => "clientip"
+#	    add_field => [ "[geoip][coordinates]", "%{[geoip][longitude]}" ]
+#	    add_field => [ "[geoip][coordinates]", "%{[geoip][latitude]}"  ]
+#	}
+#       if "_geoip_lookup_failure" in [tags] { drop { } }
+#       if [agent] == '"ELB-HealthChecker/2.0"' {
+#                drop {}
+#		}
+# 	 }
+#   else if [fields][logsource] == "nginx_error" {
+#
+#       grok {
+#              match => { "message" => "(?<timestamp>\d{4}/\d{2}/\d{2}\s{1,}\d{2}:\d{2}:\d{2})\s{1,}\[%{DATA:log_level}\]\s{1,}(%{NUMBER:pid:int}#%{NUMBER}:\s{1,}\*%{NUMBER}|\*%{NUMBER}) %{DATA:error_message}(?:,\s{1,}client:\s{1,}(?<client>%{IP}|%{HOSTNAME}))(?:,\s{1,}server:\s{1,}%{IPORHOST:server})(?:, request: %{QS:request})?(?:, upstream: %{QS:upstream})?(?:, host: %{QS:host})?(?:, referrer: \"%{URI:referrer})?"}
+#	}
+#       mutate { remove_field => ["message"]
+#        }
+#  }
+#}
+#
+#output {
+#  if [fields][logsource] == "nginx_access" {
+#    elasticsearch {
+#      hosts => ["http://10.88.0.42:9200"]
+#      index => "logstash-nginx-access-log-%{+YYYY.MM.dd}"
+#    }
+#  }
+#  if [fields][logsource] == "nginx_error" {
+#    elasticsearch {
+#      hosts => ["http://10.88.0.42:9200"]
+#      index => "logstash-nginx--error-log-%{+YYYY.MM.dd}"
+#    }
+#  }
+#  if [fields][logsource] == "test" {
+#    elasticsearch {
+#      hosts => ["http://10.88.0.42:9200"]
+#      index => "logstash-test-log-%{+YYYY.MM.dd}"
+#    }
+#  }
+#}

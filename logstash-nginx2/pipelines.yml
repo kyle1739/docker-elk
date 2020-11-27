@@ -1,0 +1,7 @@
+# - pipeline.id: nginx
+#   pipeline.workers: 1
+#   pipeline.batch.size: 1
+#   path.config: "/usr/share/logstash/pipeline/logstash.conf"
+  - pipeline.id: main
+   queue.type: persisted
+   path.config: "/usr/share/logstash/pipline/*.conf"

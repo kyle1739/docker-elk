@@ -1,0 +1,26 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /usr/local/workspace/elk/filebeat/logstash-tutorial.log
+ 
+filebeat.config:
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+ 
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+ 
+#output.logstash:
+#  hosts: ["10.88.0.43:5044"]
+
+output.kafka:
+  enabled: true
+  hosts: ["10.88.0.43:9092"]
+  max_retries: 2
+  timeout: 300
+  topic: "log-im"
+  max_message_bytes: 100000000

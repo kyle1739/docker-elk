@@ -1,0 +1,25 @@
+version: '3.7'
+services:
+  logstash:
+    image: logstash:7.6.1
+    restart: "always"
+    container_name: logstash
+    volumes:
+      - /home/kyletong/docker-elk/conf.d/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+#      - /home/kyletong/docker-logstash/logstash.yml:/etc/logstash/logstash.yml
+      - /home/kyletong/docker-elk/data:/tmp
+    ports:
+      - "5044:5044/tcp"
+    environment:
+      - "LS_JAVA_OPTS=-Xmx512m -Xms512m"
+      - "xpack.monitoring.enabled=false"
+
+  kibana: 
+    image: kibana:7.6.1
+    restart: "always"
+    container_name: "kibana"
+    volumes:
+      - /home/kyletong/docker-elk/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:rw
+    ports:
+      - "5601:5601"
+ 

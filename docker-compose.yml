@@ -1,0 +1,114 @@
+version: '3.7'
+services:
+  logstash-nginx:
+    image: logstash:7.9.1
+    restart: "always"
+    container_name: logstash-nginx
+    volumes:
+      - /home/kyletong/docker-elk/logstash/conf.d/:/usr/share/logstash/pipeline/
+      - /home/kyletong/docker-elk/logstash/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - /home/kyletong/docker-elk/logstash/jvm.options:/usr/share/logstash/config/jvm.options
+      - ./logstash/geoipupdate_4.2.2_linux_amd64/GeoLite2-City.mmdb:/usr/share/logstash/GeoLite2-City.mmdb
+#      - ./logstash/pipelines.yml/:/usr/share/logstash/config/pipelines.yml
+    ports:
+      - "5044:5044/tcp"
+      - "9600:9600"
+#    environment:
+#      - "LS_JAVA_OPTS=-Xmx1g -Xms1g"
+#      - "XPACK_MONITORING_ENABLED=false"
+
+  logstash-waf:
+    image: logstash:7.9.1
+    restart: "always"
+    container_name: logstash-waf
+    volumes:
+      - /home/kyletong/docker-elk/logstash-waf/conf.d/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - /home/kyletong/docker-elk/logstash-waf/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - /home/kyletong/docker-elk/logstash-waf/jvm.options:/usr/share/logstash/config/jvm.options
+      - ./logstash-waf/geoipupdate_4.2.2_linux_amd64/GeoLite2-City.mmdb:/usr/share/logstash/GeoLite2-City.mmdb
+#      - ./logstash-waf/pipelines.yml/:/usr/share/logstash/config/pipelines.yml
+    ports:
+      - "5045:5044/tcp"
+      - "9601:9600"
+#    environment:
+#      - "LS_JAVA_OPTS=-Xmx1g -Xms1g"
+#      - "XPACK_MONITORING_ENABLED=false"
+
+  logstash-nginx2:
+    image: logstash:7.9.1
+    restart: "always"
+    container_name: logstash-nginx2
+    volumes:
+      - /home/kyletong/docker-elk/logstash-nginx2/conf.d/:/usr/share/logstash/pipeline/
+      - /home/kyletong/docker-elk/logstash-nginx2/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - /home/kyletong/docker-elk/logstash-nginx2/jvm.options:/usr/share/logstash/config/jvm.options
+      - ./logstash-nginx2/geoipupdate_4.2.2_linux_amd64/GeoLite2-City.mmdb:/usr/share/logstash/GeoLite2-City.mmdb
+#      - ./logstash-nginx2/pipelines.yml/:/usr/share/logstash/config/pipelines.yml
+    ports:
+      - "5046:5044/tcp"
+   #   - "9601:9600"
+
+  logstash-waf2:
+    image: logstash:7.9.1
+    restart: "always"
+    container_name: logstash-waf2
+    volumes:
+      - /home/kyletong/docker-elk/logstash-waf2/conf.d/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - /home/kyletong/docker-elk/logstash-waf2/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - /home/kyletong/docker-elk/logstash-waf2/jvm.options:/usr/share/logstash/config/jvm.options
+      - ./logstash-waf2/geoipupdate_4.2.2_linux_amd64/GeoLite2-City.mmdb:/usr/share/logstash/GeoLite2-City.mmdb
+#      - ./logstash-waf2/pipelines.yml/:/usr/share/logstash/config/pipelines.yml
+    ports:
+      - "5047:5044/tcp"
+    #  - "9601:9600"
+  kibana: 
+    image: kibana:7.9.3
+    restart: "always"
+    container_name: "kibana"
+    volumes:
+      - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    ports:
+      - "5601:5601"
+
+#  filebeat:
+#    image: docker.elastic.co/beats/filebeat:7.6.1
+#    restart: "always"
+#    container_name: filebeat
+#    user: root
+#    volumes:
+#      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+#      - /var/run/docker.sock:/var/run/docker.sock
+#      - /var/lib/docker/containers/:/var/lib/docker/containers/:ro
+#      - ./filebeat/data:/usr/share/filebeat/data
+#    command: filebeat -e -strict.perms=false
+
+  grafana:
+    image: grafana/grafana:7.1.3
+    container_name: grafana
+    restart: always
+    volumes:
+     - "./grafana/data:/var/lib/grafana"
+    ports:
+     - "3000:3000"
+    environment:
+     - "GF_SECURITY_ADMIN_PASSWORD=admin123"
+     - "GF_INSTALL_PLUGINS=grafana-worldmap-panel,grafana-piechart-panel,grafana-piechart-panel,alexanderzobnin-zabbix-app,grafana-clock-panel"
+     - "GF_SMTP_ENABLED=true"
+     - "GF_SMTP_HOST=email-smtp.us-west-2.amazonaws.com:587"
+     - "GF_SMTP_USER=AKIASCH6QKHAJA5UZG7Y"
+     - "GF_SMTP_PASSWORD=BCT15VrbbwiyvCpDrP7fqy1qTzx6SBgx68akl5WbDRa4"
+     - "GF_SMTP_FROM_ADDRESS=kent.wu@ace.io"
+     - "GF_SMTP_FROM_NAME=Grafana"
+     - "GF_SERVER_ROOT_URL=http://35.221.148.141:3000/"
+  elastalert:
+    image: bitsensor/elastalert:3.0.0-beta.1
+    container_name: elastalert    
+    restart: always
+    volumes:
+      - ./elastalert/config/elastalert.yaml:/opt/elastalert/config.yaml
+      - ./elastalert/config/config.json:/opt/elastalert-server/config/config.json
+      - ./elastalert/rules:/opt/elastalert/rules
+      - ./elastalert/rule_templates:/opt/elastalert/rule_templates
+    ports:
+      - 3030:3030
+      - 3333:3333
