@@ -1,0 +1,27 @@
+cluster.name: ex-elasticsearch
+node.name: es-node-1
+node.master: true
+node.data: true
+node.ingest: false
+network.host: 0.0.0.0
+http.port: 9200
+transport.tcp.port: 9300
+discovery.seed_hosts: ["10.88.0.42:9300", "10.88.0.51:9300", "10.88.0.60:9300"]
+cluster.initial_master_nodes: ["es-node-1", "es-node-2", "es-node-3"]
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+http.cors.allow-headers: "X-Requested-With,X-Auth-Token,Content-Type, Content-Length, Authorization"
+xpack.watcher.enabled: true
+xpack.security.enabled: true
+xpack.security.transport.ssl.enabled: true
+xpack.security.transport.ssl.verification_mode: certificate
+xpack.security.transport.ssl.keystore.path: /etc/elasticsearch/elastic-certificates.p12
+xpack.security.transport.ssl.truststore.path: /etc/elasticsearch/elastic-certificates.p12
+#bootstrap.memory_lock: true
+#indices.breaker.request.limit: 10%
+#index.merge.scheduler.max_thread_count: 1
+#indices.queries.cache.size: 20%
+#indices.requests.cache.size: 2%
+#indices.fielddata.cache.size: 30%
+node.attr.box_type: hot
+node.attr.tag: hot
